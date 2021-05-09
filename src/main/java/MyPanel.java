@@ -20,6 +20,7 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
 
     Random rand = new Random(47);
 
+    @SuppressWarnings("BusyWait")
     public MyPanel(Recorder recorder) {
         enemies = new Vector<>();
         bangs = new Vector<>();
@@ -52,7 +53,7 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
                     if(choice < 4)
                         enemy.setDirect(choice);
                     else if(choice < 14)
-                        enemy.fire(1000, 750);
+                        enemy.fire(1000, 750, 7);
                     else
                         switch (enemy.getDirect()) {
                             case 0:
@@ -148,7 +149,7 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
                 }
                 break;
             case KeyEvent.VK_J:
-                hero.fire(1000, 750);
+                hero.fire(1000, 750, 7);
                 break;
             default:
                 throw new UnsupportedOperationException("不支持按键");
@@ -161,6 +162,7 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
     }
 
     @Override
+    @SuppressWarnings("BusyWait")
     public void run() {
         while (true) {
             try {

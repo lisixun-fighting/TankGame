@@ -69,8 +69,8 @@ public abstract class Tank {
 
     /**
      * 利用设定颜色的画笔和方向画出坦克
-     * @param g
-     * @param direct
+     * @param g 画笔
+     * @param direct 坦克方向
      */
     protected void drawTank(Graphics g, int direct) {
         // direct 表示方向
@@ -123,67 +123,63 @@ public abstract class Tank {
 
     /**
      * 发射子弹
-     * @param MAX_X
-     * @param MAX_Y
+     * @param MAX_X 边框界限
+     * @param MAX_Y 边框界限
      */
-    public void fire(int MAX_X, int MAX_Y) {
+    public void fire(int MAX_X, int MAX_Y, int bulletSpeed) {
         if(bullets.size() > 20) return;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int direct = getDirect();
-                int x = getX();
-                int y = getY();
+        new Thread(() -> {
+            int direct = getDirect();
+            int x = getX();
+            int y = getY();
+            switch (direct) {
+                case 0:
+                    x += 20;
+                    y += 10;
+                    break;
+                case 1:
+                    x += 40;
+                    y += 20;
+                    break;
+                case 2:
+                    x += 20;
+                    y += 50;
+                    break;
+                case 3:
+                    y += 20;
+                    x += 10;
+                    break;
+                default:
+                    break;
+            }
+            Bullet bullet = Bullet.next(bulletSpeed);
+            bullets.add(bullet);
+            while (x < MAX_X && x > 0 && y < MAX_Y && y > 0) {
+                try {
+                    Thread.sleep(60);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 switch (direct) {
                     case 0:
-                        x += 20;
-                        y += 10;
+                        y -= bullet.getSpeed();
                         break;
                     case 1:
-                        x += 40;
-                        y += 20;
+                        x += bullet.getSpeed();
                         break;
                     case 2:
-                        x += 20;
-                        y += 50;
+                        y += bullet.getSpeed();
                         break;
                     case 3:
-                        y += 20;
-                        x += 10;
+                        x -= bullet.getSpeed();
                         break;
                     default:
-                        break;
+                        throw new UnsupportedOperationException("无该方向");
                 }
-                Bullet bullet = new Bullet(1);
-                bullet.setSpeed(7);
-                bullets.add(bullet);
-                while (x < MAX_X && x > 0 && y < MAX_Y && y > 0) {
-                    try {
-                        Thread.sleep(60);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    switch (direct) {
-                        case 0:
-                            y -= bullet.getSpeed();
-                            break;
-                        case 1:
-                            x += bullet.getSpeed();;
-                            break;
-                        case 2:
-                            y += bullet.getSpeed();;
-                            break;
-                        case 3:
-                            x -= bullet.getSpeed();;
-                            break;
-                        default:
-                            throw new UnsupportedOperationException("无该方向");
-                    }
-                    bullet.setX(x);
-                    bullet.setY(y);
-                }
-                bullet.setState(2);
+                bullet.setX(x);
+                bullet.setY(y);
             }
+            bullet.setState(2);
         }).start();
     }
 
