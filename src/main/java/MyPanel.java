@@ -39,44 +39,41 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
         }
 
         // 开启描绘敌方坦克的线程
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        Thread.sleep(1500);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    for (Tank enemy : enemies) {
-                        if(enemy.getState() != 1) continue;
-                        int choice = rand.nextInt(20);
-                        if(choice < 4)
-                            enemy.setDirect(choice);
-                        else if(choice < 14)
-                            enemy.fire(1000, 750);
-                        else
-                            switch (enemy.getDirect()) {
-                                case 0:
-                                    if(enemy.getY() > 0)
-                                        enemy.moveUp(enemies, hero);
-                                    break;
-                                case 1:
-                                    if(enemy.getX() < 920)
-                                        enemy.moveRight(enemies, hero);
-                                    break;
-                                case 2:
-                                    if(enemy.getY() < 650)
-                                        enemy.moveDown(enemies, hero);
-                                    break;
-                                case 3:
-                                    if(enemy.getX() > 0)
-                                        enemy.moveLeft(enemies, hero);
-                                    break;
-                                default:
-                                    break;
-                            }
-                    }
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                for (Tank enemy : enemies) {
+                    if(enemy.getState() != 1) continue;
+                    int choice = rand.nextInt(20);
+                    if(choice < 4)
+                        enemy.setDirect(choice);
+                    else if(choice < 14)
+                        enemy.fire(1000, 750);
+                    else
+                        switch (enemy.getDirect()) {
+                            case 0:
+                                if(enemy.getY() > 0)
+                                    enemy.moveUp(enemies, hero);
+                                break;
+                            case 1:
+                                if(enemy.getX() < 920)
+                                    enemy.moveRight(enemies, hero);
+                                break;
+                            case 2:
+                                if(enemy.getY() < 650)
+                                    enemy.moveDown(enemies, hero);
+                                break;
+                            case 3:
+                                if(enemy.getX() > 0)
+                                    enemy.moveLeft(enemies, hero);
+                                break;
+                            default:
+                                break;
+                        }
                 }
             }
         }).start();
@@ -86,19 +83,16 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
         super.paint(g);
         // 绘制背景画面
         g.fillRect(0, 0, 1000, 750);
-
-        Iterator<Tank> it = enemies.iterator();
-        while (it.hasNext()) {
-            Tank enemy = it.next();
+        for (Tank enemy : enemies) {
             // 敌人子弹是否击中英雄
-            if(hero.getState() == 1 && hero.isHit(enemy.bullets)) {
+            if (hero.getState() == 1 && hero.isHit(enemy.bullets)) {
                 bangs.add(new Bang(hero.getX(), hero.getY()));
                 recorder.hurt();
-                if(recorder.getHp() <= 0)
+                if (recorder.getHp() <= 0)
                     hero.setState(2);
             }
             // 英雄子弹是否击中坦克
-            if(enemy.getState() == 1 && enemy.isHit(hero.bullets)) {
+            if (enemy.getState() == 1 && enemy.isHit(hero.bullets)) {
                 bangs.add(new Bang(enemy.getX(), enemy.getY()));
                 enemy.setState(2);
                 recorder.goal();
@@ -106,9 +100,7 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
             enemy.draw(g);
         }
 
-
         hero.draw(g);
-
         Iterator<Bang>  it2 = bangs.iterator();
         while (it2.hasNext()) {
             Bang bang = it2.next();

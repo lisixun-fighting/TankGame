@@ -22,14 +22,11 @@ public class Bang {
     }
 
     public void draw(Graphics g) {
-        if(life-- > 40) {
+        if(life-- > 40)
             g.drawImage(image1, x, y, null);
-        }
-        else if(life > 20) {
+        else if(life > 20)
             g.drawImage(image2, x+10, y+10, null);
-        }
-        else {
+        else
             g.drawImage(image3, x+20, y+20, null);
-        }
     }
 }
