@@ -1,13 +1,15 @@
+package com.lsx.pojo;
+
 import java.awt.*;
 
 public class Bang {
 
     static Image image1 = Toolkit.getDefaultToolkit().
-            getImage(Bang.class.getResource("bomb.gif"));
+            getImage(Bang.class.getResource("/bomb.gif"));
     static Image image2 = Toolkit.getDefaultToolkit().
-            getImage(Bang.class.getResource("bomb2.gif"));
+            getImage(Bang.class.getResource("/bomb.gif"));
     static Image image3 = Toolkit.getDefaultToolkit().
-            getImage(Bang.class.getResource("bomb3.gif"));
+            getImage(Bang.class.getResource("/bomb.gif"));
 
     private int x, y;
     private int life = 60;

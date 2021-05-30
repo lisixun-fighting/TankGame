@@ -1,11 +1,16 @@
+package com.lsx.util;
+
+import com.lsx.pojo.*;
+import com.lsx.util.Recorder;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseListener;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 坦克大战的绘图区域
@@ -20,7 +25,6 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
 
     Random rand = new Random(47);
 
-    @SuppressWarnings("BusyWait")
     public MyPanel(Recorder recorder) {
         enemies = new Vector<>();
         bangs = new Vector<>();
@@ -41,40 +45,40 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
 
         // 开启描绘敌方坦克的线程
         new Thread(() -> {
-            while (true) {
+            while (!Thread.interrupted()) {
                 try {
-                    Thread.sleep(1500);
+                    TimeUnit.MILLISECONDS.sleep(1500);
+                    for (Tank enemy : enemies) {
+                        if(enemy.getState() != 1) continue;
+                        int choice = rand.nextInt(20);
+                        if(choice < 4)
+                            enemy.setDirect(choice);
+                        else if(choice < 14)
+                            enemy.fire(1000, 750, 7);
+                        else
+                            switch (enemy.getDirect()) {
+                                case 0:
+                                    if(enemy.getY() > 0)
+                                        enemy.moveUp(enemies, hero);
+                                    break;
+                                case 1:
+                                    if(enemy.getX() < 920)
+                                        enemy.moveRight(enemies, hero);
+                                    break;
+                                case 2:
+                                    if(enemy.getY() < 650)
+                                        enemy.moveDown(enemies, hero);
+                                    break;
+                                case 3:
+                                    if(enemy.getX() > 0)
+                                        enemy.moveLeft(enemies, hero);
+                                    break;
+                                default:
+                                    break;
+                            }
+                    }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
-                for (Tank enemy : enemies) {
-                    if(enemy.getState() != 1) continue;
-                    int choice = rand.nextInt(20);
-                    if(choice < 4)
-                        enemy.setDirect(choice);
-                    else if(choice < 14)
-                        enemy.fire(1000, 750, 7);
-                    else
-                        switch (enemy.getDirect()) {
-                            case 0:
-                                if(enemy.getY() > 0)
-                                    enemy.moveUp(enemies, hero);
-                                break;
-                            case 1:
-                                if(enemy.getX() < 920)
-                                    enemy.moveRight(enemies, hero);
-                                break;
-                            case 2:
-                                if(enemy.getY() < 650)
-                                    enemy.moveDown(enemies, hero);
-                                break;
-                            case 3:
-                                if(enemy.getX() > 0)
-                                    enemy.moveLeft(enemies, hero);
-                                break;
-                            default:
-                                break;
-                        }
                 }
             }
         }).start();
@@ -162,16 +166,15 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
     }
 
     @Override
-    @SuppressWarnings("BusyWait")
     public void run() {
-        while (true) {
+        while (!Thread.interrupted()) {
             try {
-                Thread.sleep(10);
+                TimeUnit.MILLISECONDS.sleep(10);
+                repaint();
+                store();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            repaint();
-            store();
         }
     }
 

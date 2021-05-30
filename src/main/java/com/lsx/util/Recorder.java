@@ -1,5 +1,8 @@
+package com.lsx.util;
+
 import java.io.*;
 import java.util.*;
+import com.lsx.pojo.*;
 
 public class Recorder {
 
@@ -8,7 +11,7 @@ public class Recorder {
     private int[] heroLocate;
     private List<int[]> enemyLocate;
 
-    private String fileName = "E://resources/records.txt";
+    private String fileName = "/records.txt";
 
     public Recorder(String fileName, int enemyTanks) {
         if(fileName != null && fileName.length() > 0)
@@ -124,15 +127,5 @@ public class Recorder {
             enemyLocate.add(new int[]{enemy.getX(), enemy.getY()});
         }
         heroLocate = new int[]{hero.getX(), hero.getY()};
-    }
-
-    public static void main(String[] args) {
-        Recorder init = Recorder.init("E://resources/records.txt",5);
-        System.out.println(init.eliminateTanks);
-        System.out.println(init.hp);
-        System.out.println(Arrays.toString(init.heroLocate));
-        for (int[] ints : init.enemyLocate) {
-            System.out.println(Arrays.toString(ints));
-        }
     }
 }

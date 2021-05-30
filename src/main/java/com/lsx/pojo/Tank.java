@@ -1,3 +1,5 @@
+package com.lsx.pojo;
+
 import java.awt.*;
 import java.util.Iterator;
 import java.util.Vector;
@@ -65,7 +67,7 @@ public abstract class Tank {
         this.y = y;
     }
 
-    protected abstract void draw(Graphics g);
+    public abstract void draw(Graphics g);
 
     /**
      * 利用设定颜色的画笔和方向画出坦克

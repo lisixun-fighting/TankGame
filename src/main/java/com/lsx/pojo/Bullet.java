@@ -1,3 +1,5 @@
+package com.lsx.pojo;
+
 public class Bullet{
     private int x = -10;
     private int y = -10;

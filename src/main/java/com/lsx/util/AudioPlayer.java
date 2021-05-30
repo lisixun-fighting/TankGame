@@ -1,4 +1,4 @@
-
+package com.lsx.util;
 
 import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.Player;

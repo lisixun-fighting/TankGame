@@ -1,3 +1,5 @@
+package com.lsx.pojo;
+
 import java.awt.*;
 
 public class Enemy extends Tank {
@@ -18,7 +20,7 @@ public class Enemy extends Tank {
     }
 
     @Override
-    protected void draw(Graphics g) {
+    public void draw(Graphics g) {
         g.setColor(Color.CYAN);
         if(getState() == 1)
             drawTank(g, this.getDirect());
