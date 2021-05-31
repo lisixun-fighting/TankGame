@@ -46,23 +46,18 @@ public class Recorder {
 
     public static Recorder init(String fileName, int enemyTanks) {
         Recorder recorder = new Recorder(fileName,enemyTanks);
-
         try(BufferedReader br = new BufferedReader(new FileReader(recorder.fileName))) {
             String s = br.readLine();
             recorder.setEliminateTanks(Integer.parseInt(s.split(": ")[1]));
-
             s = br.readLine();
             recorder.setHp(Integer.parseInt(s.split(": ")[1]));
-
             s = br.readLine();
             recorder.setHeroLocate(new int[]{Integer.parseInt(s.split(" ")[0]), Integer.parseInt(s.split(" ")[1])});
-
             List<int[]> enemyLocates = new LinkedList<>();
             while((s = br.readLine()) != null) {
                 enemyLocates.add(new int[]{Integer.parseInt(s.split(" ")[0]), Integer.parseInt(s.split(" ")[1])});
             }
             recorder.setEnemyLocate(enemyLocates);
-
         } catch (IOException e) {
             System.out.println("读取失败");
             e.printStackTrace();

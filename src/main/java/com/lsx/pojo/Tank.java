@@ -1,8 +1,11 @@
 package com.lsx.pojo;
 
+import com.lsx.main.MyTankGame;
+
 import java.awt.*;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 public abstract class Tank {
     private int x;
@@ -130,7 +133,7 @@ public abstract class Tank {
      */
     public void fire(int MAX_X, int MAX_Y, int bulletSpeed) {
         if(bullets.size() > 20) return;
-        new Thread(() -> {
+        MyTankGame.EXEC.execute(() -> {
             int direct = getDirect();
             int x = getX();
             int y = getY();
@@ -156,37 +159,37 @@ public abstract class Tank {
             }
             Bullet bullet = Bullet.next(bulletSpeed);
             bullets.add(bullet);
-            while (x < MAX_X && x > 0 && y < MAX_Y && y > 0) {
+            while (!Thread.interrupted() && x < MAX_X && x > 0 && y < MAX_Y && y > 0) {
                 try {
-                    Thread.sleep(60);
+                    TimeUnit.MILLISECONDS.sleep(60);
+                    switch (direct) {
+                        case 0:
+                            y -= bullet.getSpeed();
+                            break;
+                        case 1:
+                            x += bullet.getSpeed();
+                            break;
+                        case 2:
+                            y += bullet.getSpeed();
+                            break;
+                        case 3:
+                            x -= bullet.getSpeed();
+                            break;
+                        default:
+                            throw new UnsupportedOperationException("无该方向");
+                    }
+                    bullet.setX(x);
+                    bullet.setY(y);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                switch (direct) {
-                    case 0:
-                        y -= bullet.getSpeed();
-                        break;
-                    case 1:
-                        x += bullet.getSpeed();
-                        break;
-                    case 2:
-                        y += bullet.getSpeed();
-                        break;
-                    case 3:
-                        x -= bullet.getSpeed();
-                        break;
-                    default:
-                        throw new UnsupportedOperationException("无该方向");
-                }
-                bullet.setX(x);
-                bullet.setY(y);
             }
             bullet.setState(2);
-        }).start();
+        });
     }
 
     // 上右下左移动方法
-    public void moveUp(Vector<Tank> tanks, Tank hero) {
+    public void moveUp(Vector<Tank> tanks) {
         boolean flag = true;
         for (Tank tank : tanks) {
             if(tank == this || tank.state != 1) continue;
@@ -202,7 +205,7 @@ public abstract class Tank {
             y -= speed;
     }
 
-    public void moveRight(Vector<Tank> tanks, Tank hero) {
+    public void moveRight(Vector<Tank> tanks) {
         boolean flag = true;
         for (Tank tank : tanks) {
             if(tank == this || tank.state != 1) continue;
@@ -218,7 +221,7 @@ public abstract class Tank {
             x += speed;
     }
 
-    public void moveDown(Vector<Tank> tanks, Tank hero) {
+    public void moveDown(Vector<Tank> tanks) {
         boolean flag = true;
         for (Tank tank : tanks) {
             if(tank == this || tank.state != 1) continue;
@@ -234,7 +237,7 @@ public abstract class Tank {
             y += speed;
     }
 
-    public void moveLeft(Vector<Tank> tanks, Tank hero) {
+    public void moveLeft(Vector<Tank> tanks) {
         boolean flag = true;
         for (Tank tank : tanks) {
             if(tank == this || tank.state != 1) continue;

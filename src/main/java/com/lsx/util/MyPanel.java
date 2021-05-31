@@ -1,5 +1,6 @@
 package com.lsx.util;
 
+import com.lsx.factory.TankFactory;
 import com.lsx.pojo.*;
 import com.lsx.util.Recorder;
 
@@ -15,15 +16,14 @@ import java.util.concurrent.TimeUnit;
 /**
  * 坦克大战的绘图区域
  */
-public class MyPanel extends JPanel implements KeyListener, Runnable {
+public class MyPanel extends JPanel implements Runnable {
     // 定义我的坦克
     Tank hero;
     Vector<Tank> enemies;
     Vector<Bang> bangs;
     int enemyTankNum = 5;
     Recorder recorder;
-
-    Random rand = new Random(47);
+    TankFactory factory = new TankFactory();
 
     public MyPanel(Recorder recorder) {
         enemies = new Vector<>();
@@ -32,56 +32,13 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
             this.recorder = new Recorder("", enemyTankNum);
         else
             this.recorder = recorder;
-
-        hero = new Hero(this.recorder.getHeroLocate()[0], this.recorder.getHeroLocate()[1], 15); // 初始化自己的坦克
+        hero = factory.generate(TankFactory.Type.HERO, this.recorder.getHeroLocate()[0], this.recorder.getHeroLocate()[1], 15); // 初始化自己的坦克
         if(this.recorder.getHp() <= 0)
             hero.setState(2);
         enemyTankNum -= this.recorder.getEliminateTanks();
-
-        for (int[] locates : this.recorder.getEnemyLocate()) {
-            Enemy enemy = new Enemy(locates[0], locates[1], 20, 2);
-            enemies.add(enemy);
-        }
-
-        // 开启描绘敌方坦克的线程
-        new Thread(() -> {
-            while (!Thread.interrupted()) {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(1500);
-                    for (Tank enemy : enemies) {
-                        if(enemy.getState() != 1) continue;
-                        int choice = rand.nextInt(20);
-                        if(choice < 4)
-                            enemy.setDirect(choice);
-                        else if(choice < 14)
-                            enemy.fire(1000, 750, 7);
-                        else
-                            switch (enemy.getDirect()) {
-                                case 0:
-                                    if(enemy.getY() > 0)
-                                        enemy.moveUp(enemies, hero);
-                                    break;
-                                case 1:
-                                    if(enemy.getX() < 920)
-                                        enemy.moveRight(enemies, hero);
-                                    break;
-                                case 2:
-                                    if(enemy.getY() < 650)
-                                        enemy.moveDown(enemies, hero);
-                                    break;
-                                case 3:
-                                    if(enemy.getX() > 0)
-                                        enemy.moveLeft(enemies, hero);
-                                    break;
-                                default:
-                                    break;
-                            }
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+        for (int[] locates : this.recorder.getEnemyLocate())
+            enemies.add(factory.generate(TankFactory.Type.ENEMY, locates[0], locates[1], 20));
+        Enemy.start(enemies);
     }
 
     public void paint(Graphics g) {
@@ -104,7 +61,6 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
             }
             enemy.draw(g);
         }
-
         hero.draw(g);
         Iterator<Bang>  it2 = bangs.iterator();
         while (it2.hasNext()) {
@@ -114,55 +70,53 @@ public class MyPanel extends JPanel implements KeyListener, Runnable {
             else
                 it2.remove();
         }
-
         showInfo(g);
     }
 
-    @Override
-    public void keyTyped(KeyEvent e) {
+    public KeyListener listener = new MyKeyListener();
 
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        if(hero.getState() == 2)
-            return;
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_W:
-                if(hero.getY() > 0) {
-                    hero.moveUp(enemies, hero);
-                    hero.setDirect(0);
-                }
-                break;
-            case KeyEvent.VK_D:
-                if(hero.getX() < 920) {
-                    hero.moveRight(enemies, hero);
-                    hero.setDirect(1);
-                }
-                break;
-            case KeyEvent.VK_S:
-                if(hero.getY() < 650) {
-                    hero.moveDown(enemies, hero);
-                    hero.setDirect(2);
-                }
-                break;
-            case KeyEvent.VK_A:
-                if(hero.getX() > 0) {
-                    hero.moveLeft(enemies, hero);
-                    hero.setDirect(3);
-                }
-                break;
-            case KeyEvent.VK_J:
-                hero.fire(1000, 750, 7);
-                break;
-            default:
-                throw new UnsupportedOperationException("不支持按键");
+    private class MyKeyListener implements KeyListener {
+        public void keyTyped(KeyEvent e) {}
+        public void keyPressed(KeyEvent e) {
+            if(hero.getState() == 2)
+                return;
+            switch (e.getKeyCode()) {
+                case KeyEvent.VK_W:
+                    if(hero.getY() > 0) {
+                        hero.moveUp(enemies);
+                        hero.setDirect(0);
+                    }
+                    break;
+                case KeyEvent.VK_D:
+                    if(hero.getX() < 920) {
+                        hero.moveRight(enemies);
+                        hero.setDirect(1);
+                    }
+                    break;
+                case KeyEvent.VK_S:
+                    if(hero.getY() < 650) {
+                        hero.moveDown(enemies);
+                        hero.setDirect(2);
+                    }
+                    break;
+                case KeyEvent.VK_A:
+                    if(hero.getX() > 0) {
+                        hero.moveLeft(enemies);
+                        hero.setDirect(3);
+                    }
+                    break;
+                case KeyEvent.VK_J:
+                    hero.fire(1000, 750, 7);
+                    break;
+                default:
+                    System.out.println("不支持按键");
+            }
         }
+        public void keyReleased(KeyEvent e) {}
     }
 
-    @Override
-    public void keyReleased(KeyEvent e) {
-
+    public KeyListener getListener() {
+        return listener;
     }
 
     @Override
